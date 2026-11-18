@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Virtual Lab Subnetting IPv4 - Kelas XII TJKT</title>
+  <style>
+    :root {
+      --bg-dark: #0f172a;
+      --card-bg: #1e293b;
+      --border: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --net-color: #3b82f6;     /* Biru: Network */
+      --sub-color: #f59e0b;     /* Oranye: Subnet */
+      --host-color: #10b981;    /* Hijau: Host */
+      --danger: #ef4444;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      line-height: 1.6;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      padding: 20px;
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 24px;
+    }
+
+    header h1 {
+      font-size: 1.8rem;
+      color: #38bdf8;
+      margin-bottom: 6px;
+    }
+
+    header p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    /* Navigation Tabs */
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      flex: 1;
+      min-width: 160px;
+      padding: 12px 16px;
+      background: var(--card-bg);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.25s ease;
+    }
+
+    .tab-btn:hover {
+      border-color: #38bdf8;
+      color: var(--text-main);
+    }
+
+    .tab-btn.active {
+      background: #0284c7;
+      color: #ffffff;
+      border-color: #38bdf8;
+      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);
+    }
+
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .card h2 {
+      font-size: 1.2rem;
+      margin-bottom: 15px;
+      color: #38bdf8;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
+    }
+
+    /* Controls */
+    .input-group {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      margin-bottom: 20px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    input, select {
+      padding: 10px 14px;
+      background: #0f172a;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-main);
+      font-size: 1rem;
+      outline: none;
+    }
+
+    input:focus, select:focus {
+      border-color: #38bdf8;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      background: #10b981;
+      color: #0f172a;
+      font-weight: 700;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.15s, background 0.2s;
+    }
+
+    .btn:hover {
+      background: #34d399;
+      transform: translateY(-1px);
+    }
+
+    .btn-blue {
+      background: #38bdf8;
+      color: #0f172a;
+    }
+
+    .btn-blue:hover {
+      background: #7dd3fc;
+    }
+
+    /* Binary Matrix Visualizer */
+    .legend {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+      font-size: 0.85rem;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+    }
+
+    .binary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    @media (max-width: 768px) {
+      .binary-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .octet-box {
+      background: #0f172a;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+    }
+
+    .octet-title {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .bits {
+      display: flex;
+      justify-content: center;
+      gap: 3px;
+    }
+
+    .bit {
+      width: 22px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      font-family: monospace;
+      font-weight: bold;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+    }
+
+    .bit.network { background: rgba(59, 130, 246, 0.25); color: #60a5fa; border: 1px solid #3b82f6; }
+    .bit.subnet  { background: rgba(245, 158, 11, 0.25); color: #fbbf24; border: 1px solid #f59e0b; }
+    .bit.host    { background: rgba(16, 185, 129, 0.25); color: #34d399; border: 1px solid #10b981; }
+
+    /* Info Result Grid */
+    .result-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 12px;
+    }
+
+    .stat-box {
+      background: #0f172a;
+      padding: 14px;
+      border-radius: 8px;
+      border-left: 4px solid #38bdf8;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .stat-value {
+      font-size: 1.1rem;
+      font-weight: 700;
+      font-family: monospace;
+      margin-top: 4px;
+      color: #f8fafc;
+    }
+
+    /* Topology Videographics Canvas */
+    .lab-stage {
+      background: #090d16;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    svg.topology-svg {
+      width: 100%;
+      height: 290px;
+      display: block;
+    }
+
+    .packet {
+      transition: all 0.5s ease;
+    }
+
+    .sim-log {
+      margin-top: 14px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      background: #0f172a;
+      border: 1px solid var(--border);
+      font-family: monospace;
+      font-size: 0.9rem;
+      min-height: 54px;
+    }
+
+    /* Quiz Styling */
+    .quiz-question {
+      background: #0f172a;
+      padding: 16px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      margin-bottom: 16px;
+      font-size: 1.05rem;
+    }
+
+    .quiz-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .feedback-badge {
+      padding: 12px;
+      border-radius: 8px;
+      font-weight: 600;
+      margin-top: 12px;
+      display: none;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 30px;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>🌐 Virtual Lab Subnetting IPv4 (Kelas XII TJKT)</h1>
+    <p>Simulasi Interaktif Perhitungan Bit Biner, Visualisasi Topologi Paket Data, dan Latihan Mandiri UKK</p>
+  </header>
+
+  <!-- Navigasi Tab -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('visualizer')">1. Visualizer & Kalkulator Biner</button>
+    <button class="tab-btn" onclick="switchTab('simulator')">2. Simulasi Topologi & Ping</button>
+    <button class="tab-btn" onclick="switchTab('quiz')">3. Latihan Soal Mandiri</button>
+  </div>
+
+  <!-- TAB 1: VISUALIZER & KALKULATOR BINER -->
+  <div id="visualizer" class="tab-content active">
+    <div class="card">
+      <h2>Konfigurasi IP Address & CIDR Prefix</h2>
+      <div class="input-group">
+        <div class="field">
+          <label for="ipInput">Alamat IPv4 (Contoh: 192.168.10.25)</label>
+          <input type="text" id="ipInput" value="192.168.10.25" placeholder="192.168.10.25" />
+        </div>
+        <div class="field">
+          <label for="cidrSelect">Prefix / CIDR</label>
+          <select id="cidrSelect"></select>
+        </div>
+        <button class="btn btn-blue" onclick="calculateSubnet()">Hitung & Visualisasikan</button>
+      </div>
+
+      <div class="legend">
+        <div class="legend-item"><span class="dot" style="background:#3b82f6;"></span> Network Bit (Kelas C Default /24)</div>
+        <div class="legend-item"><span class="dot" style="background:#f59e0b;"></span> Subnet Bit (Pinjaman Bit)</div>
+        <div class="legend-item"><span class="dot" style="background:#10b981;"></span> Host Bit (Alokasi Perangkat)</div>
+      </div>
+
+      <!-- Visualisasi 32 Bit -->
+      <div class="binary-grid" id="binaryMatrix"></div>
+
+      <!-- Hasil Perhitungan -->
+      <div class="result-grid">
+        <div class="stat-box">
+          <div class="stat-label">Subnet Mask</div>
+          <div class="stat-value" id="resMask">-</div>
+        </div>
+        <div class="stat-box" style="border-left-color: #3b82f6;">
+          <div class="stat-label">Network ID</div>
+          <div class="stat-value" id="resNet">-</div>
+        </div>
+        <div class="stat-box" style="border-left-color: #ef4444;">
+          <div class="stat-label">Broadcast Address</div>
+          <div class="stat-value" id="resBcast">-</div>
+        </div>
+        <div class="stat-box" style="border-left-color: #10b981;">
+          <div class="stat-label">Rentang IP Host Valid</div>
+          <div class="stat-value" id="resRange">-</div>
+        </div>
+        <div class="stat-box" style="border-left-color: #f59e0b;">
+          <div class="stat-label">Jumlah Subnet / Blok</div>
+          <div class="stat-value" id="resSubnets">-</div>
+        </div>
+        <div class="stat-box" style="border-left-color: #8b5cf6;">
+          <div class="stat-label">Total Host Valid per Subnet</div>
+          <div class="stat-value" id="resHosts">-</div>
+        </div>
